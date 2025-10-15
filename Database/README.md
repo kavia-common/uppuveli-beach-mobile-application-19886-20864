@@ -86,12 +86,30 @@ psql -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB} -p ${POSTGRES_PORT} -f s
 
 Order matters: run `schema.sql` first to create objects, then `seed.sql` to populate data.
 
+### Schema summary (aligned to BackendAPI/OpenAPI models)
+- users: id (uuid), email (unique), password_hash, name, phone, is_active, timestamps
+- admin_users: id, email, password_hash, name, role, is_active, timestamps
+- rooms: id, room_number (unique, optional), type, price, availability, description, max_occupancy, timestamps
+- bookings: id, user_id (fk users), room_id (fk rooms), status, check_in, check_out, guests, special_requests, timestamps
+- payments: id, booking_id (fk bookings), user_id (fk users), amount, currency, method, status, provider_txn_id, metadata, timestamps
+- loyalty_accounts: id, user_id (unique fk users), points, tier, timestamps
+- loyalty_history: id, account_id (fk loyalty_accounts), user_id (fk users), change, reason, reference_id, note, created_at
+- referrals: id, user_id (fk users), code (unique), status, rewards, referred_user_id (fk users), timestamps
+- notifications: id, user_id (fk users), type, message, status, is_read, metadata, created_at, read_at
+- chat_messages: id, user_id (fk users nullable), admin_id (fk admin_users nullable), message, direction, created_at
+- boutique_items: id, name, description, price, stock, sku (unique), timestamps
+
+Common: created_at/updated_at, indexes for frequent queries, and updated_at triggers on updatable tables.
+
+Convenience views:
+- v_users_basic, v_rooms_basic, v_bookings_basic, v_payments_basic
+
 ## 5) Verifying
 
 After applying schema/seed:
 ```
 psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PORT}/${POSTGRES_DB}" -c "\dt"
-psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PORT}/${POSTGRES_DB}" -c "SELECT * FROM <your_table> LIMIT 5;"
+psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PORT}/${POSTGRES_DB}" -c "SELECT * FROM rooms LIMIT 5;"
 ```
 
 ## 6) Troubleshooting
@@ -102,4 +120,5 @@ psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PO
 
 ## 7) Security Note
 
-Do not commit your actual `.env` file to source control. Use `.env.example` as a template and keep secrets in your local `.env` or your deployment platform’s secret manager.
+- Do not commit your actual `.env` file to source control. Use `.env.example` as a template and keep secrets in your local `.env` or your deployment platform’s secret manager.
+- Replace placeholder bcrypt hashes in seed.sql with secure hashes during provisioning.

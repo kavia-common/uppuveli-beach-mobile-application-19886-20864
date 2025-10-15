@@ -55,8 +55,7 @@ SET
 -- Rooms: a few examples across types with availability
 -- Use room_number when you want uniqueness across visible numbers; can be null per schema.
 -- Upsert on unique room_number when provided; otherwise upsert by (type, price, max_occupancy) as a heuristic for idempotency.
--- To support idempotent upserts for entries without room_number, we create a temporary unique key via ON CONFLICT on an expression using COALESCE.
--- Since there is no natural unique constraint for (type, price, max_occupancy), we'll use room_number to drive idempotency for these seeds by providing values.
+-- To support idempotent upserts for entries without room_number, we'll use room_number to drive idempotency for these seeds by providing values.
 
 -- Standard Queen
 INSERT INTO rooms (id, room_number, type, price, availability, description, max_occupancy, created_at, updated_at)

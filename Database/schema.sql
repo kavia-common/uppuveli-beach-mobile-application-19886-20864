@@ -8,6 +8,7 @@ BEGIN;
 -- Extensions
 CREATE EXTENSION IF NOT EXISTS pgcrypto; -- for gen_random_uuid()
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; -- fallback if needed
+CREATE EXTENSION IF NOT EXISTS citext;
 
 -- Enums
 DO $$
